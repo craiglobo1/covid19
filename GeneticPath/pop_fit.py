@@ -10,12 +10,13 @@ def NextPopulation(population,fitness,MutationRate):
 	for i in range(len(population)):
 		order = PickOne(population,fitness)
 		if round(MutationRate*len(population))%(i+1) == 0:
-			mutate(order)
+			mutate(order,MutationRate)
 		NewPopulation.append(order) 
 	return NewPopulation
 def RelativeDist(lat1,lon1,lat2,lon2):
 	dist = pow((lon2-lon1),2)+pow((lat2-lat1),2)
 	return dist
+
 def RelativeTotalDist(order):
     sum = 0
     for i in range(len(order)-1):
@@ -38,24 +39,9 @@ def distance(lat1,lon1,lat2,lon2):
 def TotalDist(order):
     sum = 0
     for i in range(len(order)-1):
-        sum += distance(order[i][1],order[i][2],order[i+1][1],order[i+1][2])
+        sum += RelativeDist(order[i][1],order[i][2],order[i+1][1],order[i+1][2])
     return sum
-def fitness(population,BestEverDist,BestEverExist=None):
-	bestDist = RelativeTotalDist(population[0])
-	BestEver = population[0]
-	fitness=[]
-	for order in population:
-		d = RelativeTotalDist(order)
-		if d < bestDist:
-			bestDist= d
-			BestEver = order
-		fitness.append(1/d)
-	fitnessNormalized = [order/sum(fitness) for order in fitness]
-	if bestDist < BestEverDist:
-		BestEver = BestEverExist
-		bestDist = BestEverDist
-	
-	return BestEver,bestDist,fitnessNormalized
+
 def PickOne(lists,prob):
 	index = 0
 	r = random()
@@ -64,7 +50,8 @@ def PickOne(lists,prob):
 		index+=1
 	index-=1
 	return lists[index]
-def mutate(order):
-	indexA = randint(0,len(order)-1)
-	indexB = randint(0,len(order)-1)
-	order[indexA],order[indexB] = order[indexB],order[indexA]
+def mutate(order,MutationRate):
+	for i in range(round(MutationRate*len(order))):
+		indexA = randint(0,len(order)-1)
+		indexB = randint(0,len(order)-1)
+		order[indexA],order[indexB] = order[indexB],order[indexA]

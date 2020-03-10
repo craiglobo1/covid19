@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from random import shuffle
-from pop_fit import InitialPopulation,fitness, PickOne, NextPopulation, TotalDist , RelativeTotalDist
+from pop_fit import InitialPopulation, PickOne, NextPopulation, TotalDist , RelativeTotalDist
 countries =[['Algeria', 2.9999825, 28.0000272], ['Nigeria', 7.9999721, 9.6000359], ['Senegal', -14.4529612, 14.4750607],
 ['South Africa', 24.991639, -28.8166236], ['Americas', -99.5486812, 19.1982908], ['Argentina', -64.9672817, -34.9964963],
 ['Brazil', -53.2, -10.3333333]]
@@ -49,17 +49,27 @@ def draw(countries):
     fig.canvas.draw()
 plt.ion()
 fig = plt.figure()
-MaxGen = 200
-mutationRate = 0.1
+MaxGen = 100
+mutationRate = 0.2
 totalCountries =len(countries)
-populationSize = 500
+populationSize = 400
 populationData = InitialPopulation(countries,populationSize)
 BestEver = populationData[0]	
-BestDist = RelativeTotalDist(BestEver)
+bestDist = RelativeTotalDist(BestEver)
 setup(BestEver)
 for i in range(MaxGen):
-    BestEver,bestDist,fitnessData = fitness(populationData,BestDist,BestEver)
-    populationData = NextPopulation(populationData,fitnessData,mutationRate)
+    fitness=[]
+    for order in populationData:
+	    d = RelativeTotalDist(order)
+	    if d < bestDist:
+		    bestDist= d
+		    BestEver = order
+	    fitness.append(1/d)
+    fitnessNormalized = [order/sum(fitness) for order in fitness]
+    populationData = NextPopulation(populationData,fitnessNormalized,mutationRate)
     print(bestDist)
     draw(BestEver)
-print(TotalDist(BestEver))
+    plt.pause(0.0001)
+print(TotalDist(BestEver),BestEver)
+with open('BestPath.txt','a+') as af:
+    af.write(f'{BestEver},{TotalDist(BestEver)}')
