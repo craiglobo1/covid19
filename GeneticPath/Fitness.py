@@ -1,3 +1,4 @@
+import operator
 class Fitness:
     def __init__(self, route):
         self.route = route
@@ -22,4 +23,8 @@ class Fitness:
         if self.fitness == 0:
             self.fitness = 1 / float(self.routeDistance())
         return self.fitness
-def CreateFitnessList()
+def rankRoutes(population):
+    fitnessResults = {}
+    for i in range(0,len(population)):
+        fitnessResults[i] = Fitness(population[i]).routeFitness()
+    return sorted(fitnessResults.items(), key = operator.itemgetter(1), reverse = True)
