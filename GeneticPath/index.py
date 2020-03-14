@@ -1,9 +1,20 @@
-from Combination import draw,setup,geneticAlgorithm,LiveGeneticAlgorithm,geneticAlgorithmPlot,distance
+from Combination import draw,setup,geneticAlgorithm,LiveGeneticAlgorithm,geneticAlgorithmPlot
 from City import CreateCitiesList
+from Fitness import finalDistance
 
-# countries =[['Algeria', 2.9999825, 28.0000272], ['Nigeria', 7.9999721, 9.6000359], ['Senegal', -14.4529612, 14.4750607],
-# ['South Africa', 24.991639, -28.8166236], ['Americas', -99.5486812, 19.1982908], ['Argentina', -64.9672817, -34.9964963],
-# ['Brazil', -53.2, -10.3333333]]
+#Function to create Batches
+def chunkIt(seq, num):
+    avg = len(seq) / float(num)
+    out = []
+    last = 0.0
+
+    while last < len(seq):
+        out.append(seq[int(last):int(last + avg)])
+        last += avg
+
+    return out
+
+#The List of locations
 countries = [['Algeria', 2.9999825, 28.0000272], ['Nigeria', 7.9999721, 9.6000359], ['Senegal', -14.4529612, 14.4750607],
 ['South Africa', 24.991639, -28.8166236], ['Americas', -99.5486812, 19.1982908], ['Argentina', -64.9672817, -34.9964963],
 ['Brazil', -53.2, -10.3333333], ['Canada', -107.9917071, 61.0666922],['Chile', -71.3187697, -31.7613365],
@@ -36,16 +47,17 @@ countries = [['Algeria', 2.9999825, 28.0000272], ['Nigeria', 7.9999721, 9.600035
 ['Singapore', 103.8303918, 1.340863], ['Taiwan', 120.9820179, 23.9739374], ['Vietnam', 108.4265113, 13.2904027]]
 
 
+#creating batches
+lonCon = sorted(countries,key=lambda lon: countries[1])
+Batches = chunkIt(lonCon,3)
+
 #Variables to facilitate Evolution
 popSize = 100
 eliteRate = 0.3
 mutationRate = 0.01
 generations= 100
 
-cityList = CreateCitiesList(countries)
-
-GA = geneticAlgorithmPlot(cityList, popSize, eliteRate, mutationRate, generations)
-sum = 0
-for i in range(len(GA)-1):
-    sum += distance(GA[i].lat,GA[i].lon,GA[i+1].lat,GA[i+1].lon)
-print(f'The actual distance is {sum}')
+for parts in Batches:
+    cityList = CreateCitiesList(parts)
+    GA = LiveGeneticAlgorithm(cityList, popSize, eliteRate, mutationRate, generations)
+    print(f'The actual distance is {finalDistance(GA)}\n')
