@@ -1,6 +1,8 @@
-from Combination import draw,setup,geneticAlgorithm,LiveGeneticAlgorithm,geneticAlgorithmPlot
+from Combination import geneticAlgorithm,LiveGeneticAlgorithm,geneticAlgorithmPlot,LiveGeneticAlgorithmPlot
 from City import CreateCitiesList
 from Fitness import finalDistance
+import pandas as pd 
+import time
 
 #Function to create Batches
 def chunkIt(seq, num):
@@ -46,10 +48,10 @@ countries = [['Algeria', 2.9999825, 28.0000272], ['Nigeria', 7.9999721, 9.600035
 ['New Zealand', 172.8344077, -41.5000831], ['Philippines', 122.7312101, 12.7503486], ['Republic of Korea', 127.6961188, 36.638392],
 ['Singapore', 103.8303918, 1.340863], ['Taiwan', 120.9820179, 23.9739374], ['Vietnam', 108.4265113, 13.2904027]]
 
-
 #creating batches
 lonCon = sorted(countries,key=lambda lon: countries[1])
-Batches = chunkIt(lonCon,3)
+flights = int(input('Enter the no of flights:'))
+Batches = chunkIt(lonCon,flights)
 
 #Variables to facilitate Evolution
 popSize = 100
@@ -57,7 +59,52 @@ eliteRate = 0.3
 mutationRate = 0.01
 generations= 100
 
+#initialise data for logging
+data = [str(popSize),str(eliteRate),str(mutationRate),str(generations)]
+print(data)
+#option system
+option = int(input('OPTION 1: GA with without graphs\nOPTION 2:  GA with distance aganst gen graph\nOPTION 3: Live View\nOPTION 4: Live View with distance aganst gen graph\nEnter the desired option: '))
+if option == 1:
+    GAMod = geneticAlgorithm
+elif option == 2:
+    GAMod = geneticAlgorithmPlot
+elif option == 3:
+    GAMod = LiveGeneticAlgorithm
+elif option == 4:
+    GAMod = LiveGeneticAlgorithmPlot
+
+#starting timer
+start_time = time.time()
+
+#Logging the data on a csv
+
+df = pd.DataFrame(columns=['popSize', 'eliteRate', 'mutationRate', 'generations','routes','routeDistances','Total distance','time'])
+
+# Runing the Algorithm
+BestRoutes = BestDist = []
 for parts in Batches:
     cityList = CreateCitiesList(parts)
-    GA = LiveGeneticAlgorithm(cityList, popSize, eliteRate, mutationRate, generations)
-    print(f'The actual distance is {finalDistance(GA)}\n')
+    GA = GAMod(cityList, popSize, eliteRate, mutationRate, generations)
+    Dist = finalDistance(GA)
+    print(f'The actual distance is {Dist}\n')
+    BestRoutes.append(GA)
+    BestDist.append(Dist)
+# print(BestRoutes[1])
+# BestRoutes[1] = [str(val) for val in range(BestRoutes[1])]
+# data.append('*'.join(BestRoutes))
+
+total,Distances = 0,[]
+for i in range(1,len(BestDist),2):
+    Distances.append(BestDist[i])
+    #Because at index 0 array contains an array 
+    total += BestDist[i]
+    
+# Distances = [str(val) for val in Distances]
+# data.append('*'.join(Distances))
+# data.append(str(total))
+# data.append(str(time.time() - start_time))
+# print(data)
+
+# df = pd.DataFrame(data=data,columns=['popSize', 'eliteRate', 'mutationRate', 'generations','routes','routeDistances','Total distance','time'])
+# df.to_csv('log.csv',mode='a+')
+# print(total)

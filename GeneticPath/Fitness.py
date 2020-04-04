@@ -48,6 +48,7 @@ def distance(lat1,lon1,lat2,lon2):
 def finalDistance(route):
     sum = 0
     for i in range(len(route)-1):
-        sum += distance(route[i].lat,route[i].lon,route[i+1].lat,route[i+1].lon)
+        dist =distance(route[i].lat,route[i].lon,route[i+1].lat,route[i+1].lon)
+        sum += dist
     return sum
     
